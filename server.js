@@ -5,20 +5,33 @@ const mongoURL = "mongodb://localhost:27017";
 let db;
 let trips;
 let expenses;
-mongo.connect(mongoURL, (err, mongoClient) => {
+const mongoContructorCB = (err, mongoClient) => {
   if (err) {
     console.log("An error occurred when connecting to MongoClient");
   } else {
-    console.log('connected to MongoDB');
-    db = mongoClient.db('tripcost');
-    trips = db.collection('trips');
-    expenses = db.collection('expenses');
+    db = mongoClient.db("tripcost");
+    trips = db.collection("trips");
+    expenses = db.collection("expenses");
   }
-});
+};
+mongo.connect(mongoURL, { useUnifiedTopology: true }, mongoContructorCB);
 
 const app = express();
+app.use(express.json());
 
-app.post("/trip", (req, res) => { /* */ });
+app.post("/trip", (req, response) => {
+  const { name } = req.body;
+  trips.insertOne({ name }, (err, result) => {
+    if (err) {
+      // eslint-disable-next-line no-console
+      console.log("An error occurred when trying to add a trip.");
+      response.status(500).json({ err });
+    } else {
+      response.status(200).json({ result });
+    }
+  });
+});
+
 app.get("/trips", (req, res) => { /* */ });
 app.post("/expense", (req, res) => { /* */ });
 app.get("/expenses", (req, res) => { /* */ });
