@@ -47,6 +47,15 @@ app.get("/trips", (req, response) => {
 app.post("/expense", (req, res) => { /* */ });
 app.get("/expenses", (req, res) => { /* */ });
 
-
+app.delete("/all-null-trips", (req, res) => {
+  trips.remove({ name: null }, (err, otherThings) => {
+    if(err) {
+      console.log('an error occurred when trying to delete all empty trips');
+      res.status(500).json(err);
+    } else {
+      res.status(200).json(otherThings);
+    }
+  });
+});
 
 app.listen(3000, () => console.log("Server ready"));
