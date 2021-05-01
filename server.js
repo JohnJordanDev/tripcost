@@ -21,19 +21,32 @@ app.use(express.json());
 
 app.post("/trip", (req, response) => {
   const { name } = req.body;
+  console.log("request is: ", req.body, req.body.name);
   trips.insertOne({ name }, (err, result) => {
     if (err) {
       // eslint-disable-next-line no-console
       console.log("An error occurred when trying to add a trip.");
       response.status(500).json({ err });
     } else {
-      response.status(200).json({ result });
+      response.status(200).json({ name });
     }
   });
 });
 
-app.get("/trips", (req, res) => { /* */ });
+app.get("/trips", (req, response) => {
+  trips.find().toArray((err, items) => {
+    if (err) {
+      console.log("error in getting list of trips");
+      response.status(500).json({ err });
+    } else {
+      response.status(200).json({ trips: items });
+    }
+  });
+});
+
 app.post("/expense", (req, res) => { /* */ });
 app.get("/expenses", (req, res) => { /* */ });
+
+
 
 app.listen(3000, () => console.log("Server ready"));
