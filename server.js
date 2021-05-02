@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const express = require("express");
 const mongo = require("mongodb").MongoClient;
 
@@ -21,10 +22,8 @@ app.use(express.json());
 
 app.post("/trip", (req, response) => {
   const { name } = req.body;
-  console.log("request is: ", req.body, req.body.name);
   trips.insertOne({ name }, (err, result) => {
     if (err) {
-      // eslint-disable-next-line no-console
       console.log("An error occurred when trying to add a trip.");
       response.status(500).json({ err });
     } else {
@@ -44,13 +43,28 @@ app.get("/trips", (req, response) => {
   });
 });
 
-app.post("/expense", (req, res) => { /* */ });
+app.post("/expense", (req, response) => {
+  const {
+    trip, date, amount, category, description
+  } = req.body;
+  expenses.insertOne({
+    trip, date, amount, category, description
+  }, (err, result) => {
+    if (err) {
+      console.log("An error occurred when posting a new expense.");
+      response.status(500).json({ err });
+    } else {
+      response.status(200).json({ ok: true });
+    }
+  });
+});
+
 app.get("/expenses", (req, res) => { /* */ });
 
 app.delete("/all-null-trips", (req, res) => {
   trips.remove({ name: null }, (err, otherThings) => {
-    if(err) {
-      console.log('an error occurred when trying to delete all empty trips');
+    if (err) {
+      console.log("an error occurred when trying to delete all empty trips");
       res.status(500).json(err);
     } else {
       res.status(200).json(otherThings);
