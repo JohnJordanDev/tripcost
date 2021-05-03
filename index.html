@@ -19,15 +19,26 @@
         </ul>
     </main>
     <script>
+        const getListItemsFromJSON = (listJSON) => {
+            const docFrag = new DocumentFragment();
+            listJSON.forEach((trip) => {
+                const list = window.document.createElement('li');
+                list.innerHTML = `<h3>Name: ${trip.name}</h3>
+                <p>A description of the trip</p>`;
+                docFrag.appendChild(list);
+            });
+            return docFrag;
+        };
         const tripList = window.document.getElementById('trip_list');
         let trips;
         fetch('http://localhost:3000/trips')
         .then(response => response.json())
         .then(jsonTrips => { 
             trips = jsonTrips;
-            tripList.innerHTML = trips;
+            tripList.innerHTML = '';
+            tripList.appendChild(getListItemsFromJSON(jsonTrips.trips));
         })
-        .catch( e => {console.log('an error occurred')});
+        .catch( e => {console.log('an error occurred', e)});
 
 
     </script>
