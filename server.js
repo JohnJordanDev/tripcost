@@ -33,6 +33,7 @@ app.post("/trip", (req, response) => {
 });
 
 app.get("/trips", (req, response) => {
+  response.header("Access-Control-Allow-Origin", "*");
   trips.find().toArray((err, items) => {
     if (err) {
       console.log("error in getting list of trips");
@@ -59,7 +60,16 @@ app.post("/expense", (req, response) => {
   });
 });
 
-app.get("/expenses", (req, res) => { /* */ });
+app.get("/expenses", (req, response) => {
+  expenses.find().toArray((err, expenseItems) => {
+    if (err) {
+      console.log("An error occurred when fetching list of expenses.");
+      response.status(500).json({ err });
+    } else {
+      response.status(200).json({ expenses: expenseItems });
+    }
+  });
+});
 
 app.delete("/all-null-trips", (req, res) => {
   trips.remove({ name: null }, (err, otherThings) => {

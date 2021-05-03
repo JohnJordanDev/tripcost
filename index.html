@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Cost Calculator</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Trip Cost Calculator</h1>
+        <p> 
+            A web application to record a list of trips and their associated expenses, using a REST API to query a NodeJS server.
+        </p>
+        <ul id="trip_list">
+            The list of trips will appear here, once returned from the server.
+        </ul>
+    </main>
+    <script>
+        const tripList = window.document.getElementById('trip_list');
+        let trips;
+        fetch('http://localhost:3000/trips')
+        .then(response => response.json())
+        .then(jsonTrips => { 
+            trips = jsonTrips;
+            tripList.innerHTML = trips;
+        })
+        .catch( e => {console.log('an error occurred')});
+
+
+    </script>
+</body>
+</html>
