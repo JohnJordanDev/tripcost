@@ -20,14 +20,28 @@ const tripRequest = fetch("http://localhost:3000/trips")
   .catch((e) => { console.log("an error occurred", e); });
 
 // TODO add race to update message if more than 5 seconds have elapsed
-let timeoutID = null;
+const makeAPITimeout = (msg, time) => {
+  let timerID;
+  const p = new Promise((resolve) => {
+    timerID = window.setTimeout(() => {
+      resolve(msg);
+    }, time);
+  });
+  const clear = () => {
+    window.clearTimeout(timerID);
+  };
+  p.clear = clear;
+  return p;
+};
 
-const timeout = new Promise((res, reject) => {
-  timeoutID = window.setTimeout(reject, 1000, "foo");
-});
+const tripRequestTimer = makeAPITimeout("Ending from the new timer", 5000);
 
-Promise.race([timeout, tripRequest]).then((d) => {
-  console.log("d is: ", d);
-}).catch(console.log).finally(() => {
-  window.clearTimeout(timeoutID);
-});
+Promise.race([tripRequestTimer, tripRequest])
+  .then((d) => {
+    console.log("data is: ", d);
+  })
+  .catch(console.log)
+  .finally(() => {
+    // clears memory held by closure in Promise constructor
+    tripRequestTimer.clear();
+  });
