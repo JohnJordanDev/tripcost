@@ -61,6 +61,7 @@ app.post("/expense", (req, response) => {
 });
 
 app.get("/expenses", (req, response) => {
+  response.header("Access-Control-Allow-Origin", "*");
   expenses.find().toArray((err, expenseItems) => {
     if (err) {
       console.log("An error occurred when fetching list of expenses.");
