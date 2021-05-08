@@ -1,6 +1,15 @@
-const getListItemsFromJSON = (tripList) => {
+const tripList = window.document.getElementById("trip_list");
+
+const updateUserMessage = (newMessage) => {
+  const p = window.document.createElement("p");
+  p.textContent = newMessage;
+  tripList.innerHTML = "";
+  tripList.append(p);
+};
+
+const getListItemsFromJSON = (listOfTrips) => {
   const docFrag = new DocumentFragment();
-  tripList.forEach((trip) => {
+  listOfTrips.forEach((trip) => {
     const li = window.document.createElement("li");
     li.innerHTML = `<h3>${trip.name}</h3>
         <p>A description of the trip</p>`;
@@ -8,16 +17,19 @@ const getListItemsFromJSON = (tripList) => {
   });
   return docFrag;
 };
-const tripList = window.document.getElementById("trip_list");
+
 let trips;
+
+const updatePageWithTrips = (jsonTrips) => {
+  trips = jsonTrips;
+  tripList.innerHTML = "";
+  tripList.appendChild(getListItemsFromJSON(trips.trips));
+  return true;
+};
+
 const tripRequest = fetch("http://localhost:3000/trips")
   .then((response) => response.json())
-  .then((jsonTrips) => {
-    trips = jsonTrips;
-    tripList.innerHTML = "";
-    tripList.appendChild(getListItemsFromJSON(trips.trips));
-  })
-  .catch((e) => { console.log("an error occurred", e); });
+  .catch((e) => { console.log("an error occurred fetching trips", e); });
 
 // TODO add race to update message if more than 5 seconds have elapsed
 const makeAPITimeout = (msg, time) => {
@@ -34,13 +46,17 @@ const makeAPITimeout = (msg, time) => {
   return p;
 };
 
-const tripRequestTimer = makeAPITimeout("Ending from the new timer", 5000);
+const tripRequestTimer = makeAPITimeout(null, 5000);
 
 Promise.race([tripRequestTimer, tripRequest])
-  .then((d) => {
-    console.log("data is: ", d);
+  .then((tripJSON) => {
+    if (tripJSON) {
+      updatePageWithTrips(tripJSON);
+    } else {
+      updateUserMessage("Sorry, the server took too long to respond");
+    }
   })
-  .catch(console.log)
+  .catch(updateUserMessage)
   .finally(() => {
     // clears memory held by closure in Promise constructor
     tripRequestTimer.clear();

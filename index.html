@@ -6,7 +6,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trip Cost Calculator</title>
     <style>
+        @keyframes clockwiseLoading {
+            0% {
+                transform: rotate(0);
+                opacity: 1;    
+            }
 
+            25% {
+                transform: rotate(90deg);
+                opacity: 0.75;
+            }
+
+            50% {
+                transform: rotate(180deg);
+                opacity: 0.5;    
+            }
+
+            75% {
+                transform: rotate(270deg);
+                opacity: 0.75;
+           }
+
+            100% {
+                transform: rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        
+        .icon-loading {
+            display: inline-block;
+            will-change: transform;
+            will-change: opacity;
+            opacity: 0.5;
+            transform: scale(.8);
+            animation: clockwiseLoading 1s linear 400ms infinite;
+            position: relative;
+            top: 2px;
+        }
     </style>
 </head>
 
@@ -18,7 +55,10 @@
             NodeJS server.
         </p>
         <ul id="trip_list">
-            <p id="trip_list_message">The list of trips will appear here, once returned from the server.</p>
+            <p id="trip_list_message">
+                <span class="icon-loading">&#8635;</span>
+                Fetching your trips...
+            </p>
         </ul>
     </main>
     <script src="script.js">
