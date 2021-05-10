@@ -45,7 +45,11 @@ const updatePageWithTrips = (jsonTrips) => {
   return true;
 };
 
-// const getFormattedDate = () => {};
+const getFormattedDate = (isoString = '') => {
+  const d = isoString.split('T')[0];
+  const date = new Date(d);
+  return date.toLocaleDateString();
+};
 
 const makeAPITimeout = (msg, time) => {
   let timerID;
@@ -80,7 +84,7 @@ const decorateTripsWithExpenses = () => {
       <li>Amount: ${expenseItem.amount}</li>
       <li>Category: ${expenseItem.category}</li>
       <li>Description: ${expenseItem.description}</li>
-      <li>date: ${expenseItem.date}</li>
+      <li>Date: ${getFormattedDate(expenseItem.date)}</li>
     </ul>`;
     return li;
   };
