@@ -3,6 +3,7 @@ const tripList = window.document.getElementById("trip_list");
 const updateUserMessage = (newMessage, targetElement) => {
   const p = window.document.createElement("p");
   p.textContent = newMessage;
+  // eslint-disable-next-line no-param-reassign
   targetElement.innerHTML = "";
   targetElement.append(p);
 };
@@ -12,7 +13,8 @@ const listOfExpenseElem = [];
 const getExpenseList = () => {
   const expenseList = window.document.createElement("ul");
   expenseList.classList.add("list_expenses");
-  expenseList.innerHTML = `<p>
+  expenseList.innerHTML = `<h3>Trip Expenses:</h3>
+  <p class="placeholder_msg">
     <span class="icon-loading">&#8635;</span>
     Fetching your expenses...
   </p>`;
@@ -25,8 +27,9 @@ const getListItemsFromJSON = (listOfTrips) => {
     const li = window.document.createElement("li");
     const expenseList = getExpenseList();
     li.innerHTML = `<h3>${trip.name}</h3>
-        <p>A description of the trip</p>`;
+        <p class="placeholder_msg">A description of the trip</p>`;
     li.appendChild(expenseList);
+    li.dataset.dbid = trip._id;
     listOfExpenseElem.push(expenseList);
     docFrag.appendChild(li);
   });
@@ -42,7 +45,8 @@ const updatePageWithTrips = (jsonTrips) => {
   return true;
 };
 
-// TODO add race to update message if more than 5 seconds have elapsed
+// const getFormattedDate = () => {};
+
 const makeAPITimeout = (msg, time) => {
   let timerID;
   const p = new Promise((resolve) => {
@@ -63,26 +67,46 @@ const tripRequest = fetch("http://localhost:3000/trips")
 
 const decorateTripsWithExpenses = () => {
   const expRequest = fetch("http://localhost:3000/expenses")
-    .then((response) => response.json)
-    .catch(console.log("error occurred fetching expenses list"));
+    .then((response) => response.json())
+    .catch((e) => {
+      console.log("error occurred fetching expenses list: ", e);
+    });
 
   const expRequestTimer = makeAPITimeout(null, 5000);
 
-  Promise.race([expRequestTimer, expRequest])
-    .then((expenses) => {
-      if (expenses) {
-        console.log("expenses are back", listOfExpenseElem);
-      } else {
-        window.document.querySelectorAll(".list_expenses").forEach((expListElem) => {
-          updateUserMessage("Sorry, could not fetch expenses for this trip.", expListElem);
-        });
-      }
-    })
-    .catch((e) => {
-      console.log("error occurred when fetching expenses");
-      window.document.querySelectorAll(".list_expenses").forEach((expListElem) => {
-        updateUserMessage("Sorry, could not fetch expenses for this trip.", expListElem);
+  const getExpListElem = (expenseItem, zerodIndex) => {
+    const li = window.document.createElement("li");
+    li.innerHTML = `<ul> <h3>Expense #${zerodIndex + 1}:</h3>
+      <li>Amount: ${expenseItem.amount}</li>
+      <li>Category: ${expenseItem.category}</li>
+      <li>Description: ${expenseItem.description}</li>
+      <li>date: ${expenseItem.date}</li>
+    </ul>`;
+    return li;
+  };
+
+  const updateExpenseListElems = (returnedExp) => {
+    const expenses = returnedExp && returnedExp.expenses ? returnedExp.expenses : [];
+    let listExpenses;
+    window.document.querySelectorAll("#trip_list > li").forEach((tripListElem) => {
+      expenses.forEach((expense, i) => {
+        listExpenses = tripListElem.querySelector(".list_expenses");
+        if (expense.trip === tripListElem.dataset.dbid) {
+          listExpenses.querySelector(".placeholder_msg").remove();
+          listExpenses.append(getExpListElem(expense, i));
+        } else {
+          listExpenses.innerHTML = "No expenses for this trip have been recorded.";
+        }
       });
+      // updateUserMessage("Sorry, could not fetch expenses for this trip.", expListElem);
+    });
+  };
+
+  Promise.race([expRequestTimer, expRequest])
+    .then(updateExpenseListElems)
+    .catch((e) => {
+      console.log("error occurred when processing/fetching expenses", e);
+      updateExpenseListElems();
     })
     .finally(() => {
       expRequestTimer.clear();

@@ -33,12 +33,27 @@
             }
         }
 
+        main {
+            text-align: center;
+        }
+
         ul {
             max-width: 500px;
+            margin: 0 auto;
+            text-align: left;
+
             padding: 1rem;
             padding-left: 2rem;
             border: solid 1px #DDD;
             border-radius: 5px;
+        }
+
+        #trip_list > li {
+            background: #F1F9FF;
+        }
+
+        #trip_list > li:nth-child(even) {
+            background: #DEF;
         }
 
         
@@ -51,6 +66,11 @@
             animation: clockwiseLoading 1s linear 400ms infinite;
             position: relative;
             top: 2px;
+        }
+
+        .list_expenses {
+            list-style-type: none;
+            border: none;
         }
     </style>
 </head>
